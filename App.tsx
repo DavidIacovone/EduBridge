@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthNavigator from './src/auth/AuthNavigator';
-import MainNavigator from './src/core/MainNavigator';
 
 import { User } from 'firebase/auth';
 import { auth } from './src/config/firebaseConfig';
+import AppNavigator from './src/core/AppNavigator';
 
 const App: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -15,7 +15,7 @@ const App: React.FC = () => {
 
     return (
         <NavigationContainer>
-            {user ? <MainNavigator/> : <AuthNavigator/>}
+            {user ? <AppNavigator/> : <AuthNavigator/>}
         </NavigationContainer>
     );
 };

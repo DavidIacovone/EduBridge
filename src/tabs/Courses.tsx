@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View, } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 import { getUserById } from '../services/userService';
 import { getCoursesByCity } from '../services/courseService';
@@ -13,6 +13,9 @@ const CoursesScreen = () => {
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
+    const route = useRoute<any>();
+    const initialSubject = route.params?.subject ?? null;
+
     const fetchCourses = async () => {
         try {
             setLoading(true);
@@ -24,9 +27,7 @@ const CoursesScreen = () => {
 
             const city = user.city;
             const data = await getCoursesByCity(city);
-
             setCourses(data);
-            setFiltered(data);
         } catch (error) {
             console.error('Error fetching courses:', error);
         } finally {
@@ -34,24 +35,45 @@ const CoursesScreen = () => {
         }
     };
 
+    const applyFilters = useCallback(() => {
+        const filteredData = courses.filter((course) => {
+            const matchesSearch = course.name
+                .toLowerCase()
+                .includes(search.toLowerCase());
+
+            const matchesSubject = initialSubject
+                ? course.subject === initialSubject
+                : true;
+
+            return matchesSearch && matchesSubject;
+        });
+
+        setFiltered(filteredData);
+    }, [courses, search, initialSubject]);
+
     useFocusEffect(
         useCallback(() => {
             fetchCourses();
         }, [])
     );
 
+    useEffect(() => {
+        applyFilters();
+    }, [search, courses, initialSubject]);
+
     const handleSearch = (text: string) => {
         setSearch(text);
-        const filteredData = courses.filter((course) =>
-            course.name.toLowerCase().includes(text.toLowerCase())
-        );
-        setFiltered(filteredData);
     };
 
     if (loading) return <ActivityIndicator style={{flex: 1}} size="large"/>;
 
     return (
         <View style={styles.container}>
+            {initialSubject && (
+                <Text style={styles.sectionTitle}>
+                    Showing courses for: {initialSubject}
+                </Text>
+            )}
             <TextInput
                 placeholder="Search courses"
                 value={search}
@@ -88,6 +110,13 @@ const CoursesScreen = () => {
 
 const styles = StyleSheet.create({
     container: {flex: 1, padding: 16},
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#555',
+        marginBottom: 6,
+        marginLeft: 4,
+    },
     searchBar: {
         borderWidth: 1,
         borderColor: '#ccc',

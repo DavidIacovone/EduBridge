@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, View, } from 'react-native';
+import { ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { auth } from '../config/firebaseConfig';
 import { deleteCourse, getCoursesByUserId } from '../services/courseService';
 import { Course } from '../types/course';
@@ -59,11 +59,19 @@ const TeacherScreen = () => {
                             <Text>{item.description}</Text>
                             <Text style={styles.city}>📍 {item.city} — {item.price} PLN</Text>
                             <View style={styles.actions}>
-                                <Button
-                                    title="Edit"
+                                <TouchableOpacity
+                                    style={[styles.button, styles.editButton]}
                                     onPress={() => navigation.navigate('CourseForm', {course: item})}
-                                />
-                                <Button title="Delete" color="red" onPress={() => handleDelete(item.id)}/>
+                                >
+                                    <Text style={styles.buttonText}>Edit</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.button, styles.deleteButton]}
+                                    onPress={() => handleDelete(item.id)}
+                                >
+                                    <Text style={styles.buttonText}>Delete</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     )}
@@ -85,17 +93,35 @@ const styles = StyleSheet.create({
     },
     title: {fontWeight: 'bold', fontSize: 16},
     city: {marginTop: 4, color: '#666'},
-    actions: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 8,
-    },
     emptyText: {
         marginTop: 32,
         textAlign: 'center',
         fontSize: 16,
         color: '#888',
     },
+    button: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 6,
+        marginHorizontal: 4,
+    },
+    editButton: {
+        backgroundColor: '#1E90FF',
+    },
+    deleteButton: {
+        backgroundColor: '#FF4C4C',
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 12,
+    },
+
 });
 
 export default TeacherScreen;

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View, } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { getUserById } from '../services/userService';
 import { getCoursesByCity } from '../services/courseService';
@@ -14,6 +14,7 @@ const CoursesScreen = () => {
     const [loading, setLoading] = useState(true);
 
     const route = useRoute<any>();
+    const navigation = useNavigation<any>();
     const initialSubject = route.params?.subject ?? null;
 
     const fetchCourses = async () => {
@@ -82,25 +83,29 @@ const CoursesScreen = () => {
             />
             {filtered.length === 0 ? (
                 <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No courses found in your city</Text>
+                    <Text style={styles.emptyText}>No courses found</Text>
                 </View>
             ) : (
                 <FlatList
                     data={filtered}
                     keyExtractor={(item) => item.id}
                     renderItem={({item}) => (
-                        <View style={styles.courseCard}>
-                            <View style={styles.cardRow}>
-                                <View style={styles.courseInfo}>
-                                    <Text style={styles.courseName}>{item.name}</Text>
-                                    <Text style={styles.courseDesc}>{item.description}</Text>
-                                    <Text style={styles.courseLoc}>📍 {item.city}</Text>
-                                </View>
-                                <View style={styles.priceBox}>
-                                    <Text style={styles.priceText}>{item.price} PLN</Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('CourseDetails', {course: item})}
+                        >
+                            <View style={styles.courseCard}>
+                                <View style={styles.cardRow}>
+                                    <View style={styles.courseInfo}>
+                                        <Text style={styles.courseName}>{item.name}</Text>
+                                        <Text style={styles.courseDesc}>{item.description}</Text>
+                                        <Text style={styles.courseLoc}>📍 {item.city}</Text>
+                                    </View>
+                                    <View style={styles.priceBox}>
+                                        <Text style={styles.priceText}>{item.price} PLN</Text>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 />
             )}
